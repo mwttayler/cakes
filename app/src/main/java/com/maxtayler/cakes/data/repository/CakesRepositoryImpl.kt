@@ -10,6 +10,7 @@ class CakesRepositoryImpl @Inject constructor(
     private val mapper: CakeMapper
 ) : CakesRepository {
 
+    // TODO: Cache cakes locally so the list is still available offline
     override suspend fun getCakes(): List<Cake> {
         return api.getCakes().map { mapper.mapFrom(it) }
             .distinctBy { it.title.trim().lowercase() }

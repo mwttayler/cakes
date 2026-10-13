@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.unit.dp
 import com.maxtayler.cakes.ui.components.previews.LightDarkPreviews
 
+// TODO: Move hardcoded strings to strings.xml
 @Composable
 fun ErrorMessage(
     onRetryButtonClick: () -> Unit,

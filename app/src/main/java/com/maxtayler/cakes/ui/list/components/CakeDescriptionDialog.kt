@@ -64,6 +64,7 @@ private fun CakeDescriptionDialogContent(
                 onClick = onClose,
                 modifier = Modifier.align(Alignment.End)
             ) {
+                // TODO: Move hardcoded string to strings.xml
                 Text(text = "Close")
             }
         }

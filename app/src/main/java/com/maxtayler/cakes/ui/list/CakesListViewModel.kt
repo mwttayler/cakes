@@ -79,7 +79,9 @@ class CakesListViewModel @Inject constructor(
                 }
             } catch (exception: Exception) {
                 ensureActive()
+                // TODO: Replace printStackTrace with a proper logger such as Timber
                 exception.printStackTrace()
+                // TODO: Keep cakes on screen and show a snackbar when a refresh fails
                 _uiState.update { CakesListUiState.Error }
             }
         }
