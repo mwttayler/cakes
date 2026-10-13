@@ -17,7 +17,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): HttpClient {
+    fun provideHttpClient(): HttpClient {
         return HttpClient {
             install(ContentNegotiation) {
                 val json = Json { ignoreUnknownKeys = true }
