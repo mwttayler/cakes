@@ -27,6 +27,14 @@ class CakesListViewModel @Inject constructor(
     private var job: Job? = null
 
     init {
+        _uiState.update { CakesListUiState.Loading }
+        load()
+    }
+
+    fun onRefresh() {
+        val current = uiState.value as? CakesListUiState.Success ?: return
+        if (current.isRefreshing) return
+        _uiState.update { current.copy(isRefreshing = true) }
         load()
     }
 
@@ -51,6 +59,7 @@ class CakesListViewModel @Inject constructor(
     }
 
     fun onRetryButtonClicked() {
+        _uiState.update { CakesListUiState.Loading }
         load()
     }
 
@@ -58,12 +67,12 @@ class CakesListViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             try {
-                _uiState.update { CakesListUiState.Loading }
                 val cakes = repository.getCakes()
                 _uiState.update {
                     CakesListUiState.Success(
                         cakes = cakes,
-                        selectedCake = null
+                        selectedCake = null,
+                        isRefreshing = false
                     )
                 }
             } catch (exception: Exception) {

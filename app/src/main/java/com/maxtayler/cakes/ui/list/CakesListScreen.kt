@@ -2,11 +2,16 @@ package com.maxtayler.cakes.ui.list
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.maxtayler.cakes.data.model.Cake
@@ -23,6 +28,7 @@ fun CakesListScreen(modifier: Modifier = Modifier) {
     val uiState: CakesListUiState by viewModel.uiState.collectAsStateWithLifecycle()
     CakesListContent(
         uiState = uiState,
+        onRefresh = viewModel::onRefresh,
         onRetryButtonClick = viewModel::onRetryButtonClicked,
         onCakeClicked = viewModel::onCakeClicked,
         onCakeDialogDismissed= viewModel::onCakeDialogDismissed,
@@ -33,6 +39,7 @@ fun CakesListScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun CakesListContent(
     uiState: CakesListUiState,
+    onRefresh: () -> Unit,
     onRetryButtonClick: () -> Unit,
     onCakeClicked: (cake: Cake) -> Unit,
     onCakeDialogDismissed: () -> Unit,
@@ -51,11 +58,26 @@ private fun CakesListContent(
         }
 
         is CakesListUiState.Success -> {
-            CakesList(
-                cakes = uiState.cakes,
-                onCakeClicked = onCakeClicked,
-                modifier = modifier
-            )
+            val pullToRefreshState = rememberPullToRefreshState()
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                state = pullToRefreshState,
+                indicator = {
+                    Indicator(
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        isRefreshing = uiState.isRefreshing,
+                        state = pullToRefreshState,
+                        maxDistance = 120.dp
+                    )
+                },
+                onRefresh = onRefresh
+            ) {
+                CakesList(
+                    cakes = uiState.cakes,
+                    onCakeClicked = onCakeClicked,
+                    modifier = modifier
+                )
+            }
             uiState.selectedCake?.let { selectedCake ->
                 CakeDescriptionDialog(
                     cake = selectedCake,
@@ -75,6 +97,7 @@ private fun CakesListScreenPreview(
         Surface {
             CakesListContent(
                 uiState = uiState,
+                onRefresh = { /* no-op */ },
                 onRetryButtonClick = { /* no-op */ },
                 onCakeClicked = { /* no-op */ },
                 onCakeDialogDismissed = { /* no-op */ },
@@ -96,7 +119,8 @@ private class CakesListUiStateProvider : PreviewParameterProvider<CakesListUiSta
                         imageUrl = ""
                     )
                 ),
-                selectedCake = null
+                selectedCake = null,
+                isRefreshing = false
             ),
             CakesListUiState.Error
         )

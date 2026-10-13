@@ -8,7 +8,8 @@ sealed interface CakesListUiState {
 
     data class Success(
         val cakes: List<Cake>,
-        val selectedCake: Cake?
+        val selectedCake: Cake?,
+        val isRefreshing: Boolean
     ): CakesListUiState
 
     data object Error: CakesListUiState
